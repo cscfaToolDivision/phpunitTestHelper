@@ -1,14 +1,27 @@
 {
 	"name" : "cscfa/jbp_entity_management",
-	"license" : "proprietary",
-	"type" : "project",
+	"license" : "MIT",
+	"type" : "library",
+    "authors": [
+        {
+            "name": "Matthieu Vallance",
+            "email": "matthieu.vallance@cscfa.fr"
+        }
+    ],
 	"autoload" : {
 		"psr-4" : {
-			"" : "src/"
+			"CSDT\\PhpunitTestHelper\\" : "src/CSDT/PhpunitTestHelper/"
 		}
 	},
 	"require" : {
-        "phpunit/phpunit": "5@stable",
+        "phpunit/phpunit": "5@stable"
+	},
+    "require-dev": {
         "escapestudios/symfony2-coding-standard": "2.9.0"
-	}
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-master": "1.0-dev"
+        }
+    }
 }
