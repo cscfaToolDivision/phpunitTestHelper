@@ -1,0 +1,14 @@
+{
+	"name" : "cscfa/jbp_entity_management",
+	"license" : "proprietary",
+	"type" : "project",
+	"autoload" : {
+		"psr-4" : {
+			"" : "src/"
+		}
+	},
+	"require" : {
+        "phpunit/phpunit": "5@stable",
+        "escapestudios/symfony2-coding-standard": "2.9.0"
+	}
+}
