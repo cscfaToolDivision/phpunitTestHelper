@@ -1,5 +1,5 @@
 {
-    "name" : "cscfa/jbp_entity_management",
+    "name" : "cscfa_tool_division/phpunit_test_helper",
     "license" : "MIT",
     "type" : "library",
     "authors": [
