@@ -91,7 +91,7 @@ $call->call('setName')
     ->with(array('instance_name'))
     ->mustReturn($instance)
     ->inject('instance_name', false, function($value){return $value;})
-    ->in('name')
+    ->injectIn('name')
     ->resolve();
 ```
 
@@ -99,9 +99,11 @@ $call->call('setName')
 
 This method allow to provide a value that is expected to be injected into a property of the instance. The given boolean, as second argument tell that the equality must be tested by same (as true) or equal (as false). Finally, a **Callable** can be given as third argument to pre-process the value before equality validation.
 
-#### The in method
+It return a InjectExpression instance.
 
-This method define the property where the value is stored.
+#### The injectIn method
+
+This method define the property where the value is stored. It is a method of InjectExpression instance and return the parent SetterCall instance.
 
 ## The GetterCall
 
