@@ -19,6 +19,7 @@ use CSDT\PhpunitTestHelper\Objects\ObjectCall;
 use CSDT\PhpunitTestHelper\Traits\ObjectTestTrait;
 use CSDT\PhpunitTestHelper\Exceptions\RequiredArgumentException;
 use CSDT\PhpunitTestHelper\Exceptions\TypeException;
+use CSDT\PhpunitTestHelper\Expressions\InjectExpression;
 
 /**
  * Setter call.
@@ -38,43 +39,26 @@ class SetterCall extends ObjectCall
     use ObjectTestTrait;
 
     /**
-     * Inject value
+     * Injections
      *
-     * The value expected to be injected
-     * into the property.
+     * This property store the expected
+     * injections.
      *
-     * @var mixed
+     * @var array
      */
-    private $injectValue;
+    private $injections;
 
     /**
-     * Inject process
+     * {@inheritDoc}
      *
-     * The injection process applicable to the value.
-     *
-     * @var Callable
+     * @see \CSDT\PhpunitTestHelper\Objects\ObjectCall::__construct()
      */
-    private $injectProcess;
+    public function __construct($assert)
+    {
+        parent::__construct($assert);
 
-    /**
-     * Inject target
-     *
-     * The property name where the injection
-     * must be done.
-     *
-     * @var string
-     */
-    private $injectTarget;
-
-    /**
-     * Inject same
-     *
-     * Indicate that the injection result and the
-     * given value must be equals or same.
-     *
-     * @var boolean
-     */
-    private $injectSame = false;
+        $this->injections = array();
+    }
 
     /**
      * Inject
@@ -90,37 +74,15 @@ class SetterCall extends ObjectCall
      * @param callable $process [optional] A pre-process function for the given value
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     * @return $this
+     * @return                                      $this
      */
     public function inject($value, $same = false, callable $process = null)
     {
-        $this->injectValue = $value;
-        $this->injectProcess = $process;
-        $this->injectSame = $same;
+        $injection = new InjectExpression($value, $this, $this->assert, $same, $process);
 
-        return $this;
-    }
+        array_push($this->injections, $injection);
 
-    /**
-     * Inject in
-     *
-     * This method define the property where the value is stored.
-     *
-     * @param string $property The property name
-     *
-     * @throws TypeException If the given property is not a string
-     *
-     * @return $this
-     */
-    public function injectIn($property)
-    {
-        if (!is_string($property)) {
-            throw new TypeException('string', $property);
-        }
-
-        $this->injectTarget = $property;
-
-        return $this;
+        return $injection;
     }
 
     /**
@@ -132,33 +94,10 @@ class SetterCall extends ObjectCall
     {
         parent::resolve($message);
 
-        $expectedValue = $this->injectValue;
-        if (!is_null($this->injectProcess)) {
-            $function = $this->injectProcess;
-            $expectedValue = $function($this->injectValue);
-        }
-
-        $actualValue = $this->getPropertyValue($this->instance, $this->injectTarget);
-
-        $method = 'assertEquals';
-        if ($this->injectSame) {
-            $method = 'assertSame';
-        }
-        $this->assert->$method($expectedValue, $actualValue, $injectionMessage);
-    }
-
-    /**
-     * {@inheritDoc}
-     *
-     * @see \CSDT\PhpunitTestHelper\Objects\ObjectCall::validatePreRequise()
-     */
-    protected function validatePreRequise()
-    {
-        if (is_null($this->injectTarget)) {
-            throw new RequiredArgumentException(
-                'The injectTarget is mandatory',
-                500
-            );
+        foreach ($this->injections as $injection) {
+            if ($injection instanceof InjectExpression) {
+                $injection->resolve($this->instance, $injectionMessage);
+            }
         }
     }
 }

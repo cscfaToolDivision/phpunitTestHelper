@@ -171,7 +171,7 @@ class ObjectCall
      * @param string $same   [optional] The equality type (true for same, false for equal)
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     * @return $this
+     * @return                                      $this
      */
     public function mustReturn($result, $same = false)
     {

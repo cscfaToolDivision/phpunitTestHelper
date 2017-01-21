@@ -50,3 +50,4 @@
 .project
 .settings/
 composer.lock
+*/.DS_Store

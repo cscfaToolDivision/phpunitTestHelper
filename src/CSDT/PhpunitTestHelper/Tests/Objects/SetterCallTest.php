@@ -18,6 +18,7 @@ namespace CSDT\PhpunitTestHelper\Tests\Objects;
 use CSDT\PhpunitTestHelper\Traits\ObjectTestTrait;
 use CSDT\PhpunitTestHelper\Objects\SetterCall;
 use CSDT\PhpunitTestHelper\Tests\Traits\Misc\TestObject;
+use CSDT\PhpunitTestHelper\Expressions\InjectExpression;
 
 /**
  * SetterCall test
@@ -86,51 +87,39 @@ class SetterCallTest extends \PHPUnit_Framework_TestCase
     {
         $this->resolveInjectCall($value, $same, $process);
 
+        $injections = $this->getPropertyValue($this->instance, 'injections');
+
+        $this->assertCount(
+            1,
+            $injections,
+            'The SetterCall::inject method is expected to store a InjectionExpression'
+        );
+
+        $injection = $injections[0];
+
+        $this->assertInstanceOf(
+            InjectExpression::class,
+            $injection,
+            'The SetterCall::inject method is expected to store a InjectionExpression instance'
+        );
+
         $this->assertEquals(
             $value,
-            $this->getPropertyValue($this->instance, 'injectValue'),
+            $this->getPropertyValue($injection, 'injectValue'),
             'Inject method is expected to inject the given value in injectValue property'
         );
 
         $this->assertEquals(
             $process,
-            $this->getPropertyValue($this->instance, 'injectProcess'),
+            $this->getPropertyValue($injection, 'injectProcess'),
             'Inject method is expected to inject the given process in injectProcess property'
         );
 
         $this->assertEquals(
             $same,
-            $this->getPropertyValue($this->instance, 'injectSame'),
+            $this->getPropertyValue($injection, 'injectSame'),
             'Inject method is expected to inject the given equality validation in injectSame property'
         );
-    }
-
-    /**
-     * Test injectIn
-     *
-     * This method test the in method logic.
-     *
-     * @expectedException CSDT\PhpunitTestHelper\Exceptions\TypeException
-     * @return            void
-     */
-    public function testInjectIn()
-    {
-        $property = 'property';
-        $return = $this->instance->injectIn($property);
-
-        $this->assertEquals(
-            $property,
-            $this->getPropertyValue($this->instance, 'injectTarget'),
-            'The SetterCall::in method is expected to set the given value into injectTarget property'
-        );
-
-        $this->assertSame(
-            $this->instance,
-            $return,
-            'The SetterCall::in method is expected to return \$this'
-        );
-
-        $this->instance->injectIn(new \stdClass());
     }
 
     /**
@@ -138,8 +127,7 @@ class SetterCallTest extends \PHPUnit_Framework_TestCase
      *
      * This method test the resolve method logic.
      *
-     * @expectedException CSDT\PhpunitTestHelper\Exceptions\RequiredArgumentException
-     * @return            void
+     * @return void
      */
     public function testResolve()
     {
@@ -167,19 +155,17 @@ class SetterCallTest extends \PHPUnit_Framework_TestCase
             ->injectIn('private')
             ->resolve();
 
-        $this->instance = new SetterCall($this);
 
-        $this->instance->call('setPrivate')
+        $this->instance->call('setProtected')
             ->onInstance($instance)
             ->with(array('test'))
             ->mustReturn($instance, true)
-            ->inject(
-                'test',
-                true,
-                function ($value) {
-                    return $value;
-                }
-            )
+            ->inject('test')
+            ->injectIn('property')
+            ->inject('test')
+            ->injectIn('private')
+            ->inject('test')
+            ->injectIn('protected')
             ->resolve();
     }
 
