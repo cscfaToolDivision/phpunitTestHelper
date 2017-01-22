@@ -220,8 +220,22 @@ class InjectExpressionTest extends \PHPUnit_Framework_TestCase
         } catch (\Exception $exception) {
         }
 
-        $expression = new InjectExpression($value, new SetterCall($this), $this);
-        $expression->injectIn($property, $instance);
+        $parent = new SetterCall($this);
+        $parent->call('setPrivate')
+            ->with(array('test'))
+            ->onInstance($instance)
+            ->mustReturn($instance);
+
+        $expression = new InjectExpression($value, $parent, $this);
+
+        $this->setPropertyValue($parent, 'injections', array($expression));
+
+        try {
+            $expression->injectIn($property, $instance)
+                ->resolve();
+        } catch (\Exception $exception) {
+            $this->fail('The InjectExpression::resolve is not expected to throw exception');
+        }
 
         $expression = new InjectExpression($value, $parent, $this);
         $expression->resolve($instance);

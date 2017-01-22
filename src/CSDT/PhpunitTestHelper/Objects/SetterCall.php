@@ -74,7 +74,7 @@ class SetterCall extends ObjectCall
      * @param callable $process [optional] A pre-process function for the given value
      *
      * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     * @return                                      $this
+     * @return                                      InjectExpression
      */
     public function inject($value, $same = false, callable $process = null)
     {

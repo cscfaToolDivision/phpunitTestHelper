@@ -234,7 +234,7 @@ class ObjectCall
     {
         if (is_null($this->callMethod) || is_null($this->instance)) {
             throw new RequiredArgumentException(
-                'The callMEthod and instance are mandatory',
+                'The callMethod and instance are mandatory',
                 500
             );
         }
