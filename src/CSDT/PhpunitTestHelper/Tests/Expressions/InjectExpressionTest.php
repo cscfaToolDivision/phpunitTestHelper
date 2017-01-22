@@ -19,6 +19,8 @@ use CSDT\PhpunitTestHelper\Expressions\InjectExpression;
 use CSDT\PhpunitTestHelper\Traits\ObjectTestTrait;
 use CSDT\PhpunitTestHelper\Objects\SetterCall;
 use CSDT\PhpunitTestHelper\Tests\Traits\Misc\TestObject;
+use CSDT\PhpunitTestHelper\Exceptions\TypeException;
+use CSDT\PhpunitTestHelper\Tests\Traits\Misc\FacadeObject;
 
 /**
  * InjectExpression test
@@ -145,6 +147,22 @@ class InjectExpressionTest extends \PHPUnit_Framework_TestCase
             'The InjectExpression::in method is expected to return it\'s parent'
         );
 
+        $return = $instance->injectIn($property, $instance);
+
+        $this->assertSame(
+            $instance,
+            $this->getPropertyValue($instance, 'injectInstance'),
+            'The InjectExpression::in method is expected to set the given instance into injectInstance property'
+        );
+
+        try {
+            $instance->injectIn($property, 'noObject');
+            $this->fail(
+                'The InjectExpression::in method is expected to fail if the given instance is not object'
+            );
+        } catch (TypeException $exception) {
+        }
+
         $instance->injectIn(new \stdClass());
     }
 
@@ -201,6 +219,9 @@ class InjectExpressionTest extends \PHPUnit_Framework_TestCase
             $this->fail('The InjectExpression::resolve is expected to throw exception');
         } catch (\Exception $exception) {
         }
+
+        $expression = new InjectExpression($value, new SetterCall($this), $this);
+        $expression->injectIn($property, $instance);
 
         $expression = new InjectExpression($value, $parent, $this);
         $expression->resolve($instance);

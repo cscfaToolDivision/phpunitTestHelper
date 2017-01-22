@@ -83,6 +83,16 @@ class InjectExpression
     private $injectTarget;
 
     /**
+     * Inject instance
+     *
+     * The instance where the injection
+     * must be done.
+     *
+     * @var mixed
+     */
+    private $injectInstance;
+
+    /**
      * Inject same
      *
      * Indicate that the injection result and the
@@ -123,18 +133,24 @@ class InjectExpression
      * This method define the property where the value is stored.
      *
      * @param string $property The property name
+     * @param mixed  $instance The instance where the injection is done
      *
      * @throws TypeException If the given property is not a string
      *
      * @return SetterCall
      */
-    public function injectIn($property)
+    public function injectIn($property, $instance = null)
     {
         if (!is_string($property)) {
             throw new TypeException('string', $property);
         }
 
+        if (!is_null($instance) && !is_object($instance)) {
+            throw new TypeException('object', $instance);
+        }
+
         $this->injectTarget = $property;
+        $this->injectInstance = $instance;
 
         return $this->parentCall;
     }
@@ -159,6 +175,10 @@ class InjectExpression
         if (!is_null($this->injectProcess)) {
             $function = $this->injectProcess;
             $expectedValue = $function($this->injectValue);
+        }
+
+        if (!is_null($this->injectInstance)) {
+            $instance = $this->injectInstance;
         }
 
         $actualValue = $this->getPropertyValue($instance, $this->injectTarget);
