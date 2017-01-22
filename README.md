@@ -105,6 +105,20 @@ It return a InjectExpression instance.
 
 This method define the property where the value is stored. It is a method of InjectExpression instance and return the parent SetterCall instance.
 
+For multiple instance setting, it s possible to give another instance as second argument to the injectIn method to specify another instance where the value must be injected.
+
+```php
+$instance = new MyInstance();
+$facade = new MyFacade($instance);
+$call->call('setName')
+    ->on($facade)
+    ->with(array('instance_name'))
+    ->mustReturn($facade)
+    ->inject('instance_name', false, function($value){return $value;})
+    ->injectIn('name', $instance)
+    ->resolve();
+```
+
 ## The GetterCall
 
 The **GetterCall** is an extension of the ObjectCall that allow to test the property getter.
