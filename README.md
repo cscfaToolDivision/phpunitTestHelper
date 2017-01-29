@@ -80,6 +80,21 @@ This method define the instance on which the method must be called.
 
 This method define the method name to call.
 
+#### The mustThrow method
+
+This method define that the called method must throw an exception.
+
+```php
+$instance = new MyInstance();
+$caller = new ObjectCall($currentTestCase);
+
+$call->call('throw')
+            ->on($instance)
+            ->with(array('instance_name'))
+            ->mustThrow(\Exception::class, 500, 'Th throw method was called')
+            ->resolve();
+```
+
 ## The SetterCall
 
 The **SetterCall** is an extension of the ObjectCall that allow to test the property injection.
