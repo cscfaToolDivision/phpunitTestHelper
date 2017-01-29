@@ -224,7 +224,6 @@ class ObjectTestTraitTest extends \PHPUnit_Framework_TestCase
             $object->getStaticPrivate(),
             'ObjectTestTrait is expected to be able to set a static private property'
         );
-
     }
 
     /**

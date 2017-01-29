@@ -18,6 +18,7 @@ namespace CSDT\PhpunitTestHelper\Objects;
 use Prophecy\Exception\Doubler\MethodNotFoundException;
 use CSDT\PhpunitTestHelper\Exceptions\TypeException;
 use CSDT\PhpunitTestHelper\Exceptions\RequiredArgumentException;
+use CSDT\PhpunitTestHelper\Expressions\ThrowExpression;
 
 /**
  * ObjectCall
@@ -26,13 +27,14 @@ use CSDT\PhpunitTestHelper\Exceptions\RequiredArgumentException;
  * and return value.
  *
  * @category ObjectTesting
- * @package  PHPUnitTestHelper
- * @author   matthieu vallance <matthieu.vallance@cscfa.fr>
- * @license  MIT <https://opensource.org/licenses/MIT>
- * @link     http://cscfa.fr
+ * @package PHPUnitTestHelper
+ * @author matthieu vallance <matthieu.vallance@cscfa.fr>
+ * @license MIT <https://opensource.org/licenses/MIT>
+ * @link http://cscfa.fr
  */
 class ObjectCall
 {
+
     /**
      * Assert
      *
@@ -88,11 +90,21 @@ class ObjectCall
     private $same = false;
 
     /**
+     * Throw expression
+     *
+     * The call failure test expression.
+     *
+     * @var ThrowExpression
+     */
+    private $throwExpression;
+
+    /**
      * Constructor
      *
      * The default ObjectCall constructor.
      *
-     * @param \PHPUnit_Framework_Assert $assert The assert instance to execute the tests
+     * @param \PHPUnit_Framework_Assert $assert
+     *            The assert instance to execute the tests
      *
      * @return void
      */
@@ -107,7 +119,8 @@ class ObjectCall
      *
      * This method define the method name to call.
      *
-     * @param string $method The emthod name to call.
+     * @param string $method
+     *            The emthod name to call.
      *
      * @throws TypeException If the given method is not a string
      *
@@ -115,7 +128,7 @@ class ObjectCall
      */
     public function call($method)
     {
-        if (!is_string($method)) {
+        if (! is_string($method)) {
             throw new TypeException('string', $method);
         }
 
@@ -129,7 +142,8 @@ class ObjectCall
      *
      * This method define the instance on which the method must be called.
      *
-     * @param mixed $instance The instance that is tested
+     * @param mixed $instance
+     *            The instance that is tested
      *
      * @throws TypeException If the given instance is not an object
      *
@@ -137,7 +151,7 @@ class ObjectCall
      */
     public function onInstance($instance)
     {
-        if (!is_object($instance)) {
+        if (! is_object($instance)) {
             throw new TypeException('object', $instance);
         }
 
@@ -151,7 +165,8 @@ class ObjectCall
      *
      * This method define the arguments passed to the method at call time.
      *
-     * @param array $arguments The arguments to inject.
+     * @param array $arguments
+     *            The arguments to inject.
      *
      * @return $this
      */
@@ -170,8 +185,8 @@ class ObjectCall
      * @param mixed  $result The expected result
      * @param string $same   [optional] The equality type (true for same, false for equal)
      *
-     * @SuppressWarnings(PHPMD.BooleanArgumentFlag)
-     * @return                                      $this
+     *            @SuppressWarnings(PHPMD.BooleanArgumentFlag)
+     * @return $this
      */
     public function mustReturn($result, $same = false)
     {
@@ -182,15 +197,39 @@ class ObjectCall
     }
 
     /**
+     * Must throw
+     *
+     * This method define the expected exception throwed by the method.
+     *
+     * @param string $exceptionClass The expected exception class
+     * @param string $code           The expected exception code
+     * @param string $message        The expected exception message
+     *
+     * @return void
+     */
+    public function mustThrow($exceptionClass = null, $code = null, $message = null)
+    {
+        $this->throwExpression = new ThrowExpression(
+            $this->assert,
+            $exceptionClass,
+            $code,
+            $message
+        );
+
+        return $this;
+    }
+
+    /**
      * Resolve
      *
      * This method resolve and execute the object call
      * definition.
      *
-     * @param string $message The failure message
+     * @param string $message
+     *            The failure message
      *
-     * @throws \RuntimeException         If the method call fail
-     * @throws MethodNotFoundException   If the method does not exist
+     * @throws \RuntimeException If the method call fail
+     * @throws MethodNotFoundException If the method does not exist
      * @throws RequiredArgumentException If the callMethod or instance are null
      *
      * @return void
@@ -209,7 +248,7 @@ class ObjectCall
             $failed = true;
         }
 
-        if (!$failed) {
+        if (! $failed) {
             $method = 'assertEquals';
             if ($this->same) {
                 $method = 'assertSame';
@@ -217,7 +256,11 @@ class ObjectCall
 
             $this->assert->$method($this->result, $result, $message);
         } else {
-            throw new \RuntimeException('Method call failed', 500, $failException);
+            if ($this->throwExpression === null) {
+                throw new \RuntimeException('Method call failed', 500, $failException);
+            }
+
+            $this->throwExpression->resolve($failException);
         }
     }
 
@@ -233,10 +276,7 @@ class ObjectCall
     protected function validatePreRequise()
     {
         if (is_null($this->callMethod) || is_null($this->instance)) {
-            throw new RequiredArgumentException(
-                'The callMethod and instance are mandatory',
-                500
-            );
+            throw new RequiredArgumentException('The callMethod and instance are mandatory', 500);
         }
     }
 
@@ -246,8 +286,10 @@ class ObjectCall
      * This method call the current tested instance
      * expected method with the registered arguments.
      *
-     * @param \ReflectionClass $reflection The reflection whence resolve the method
-     * @param string           $methodName The method name to resolve
+     * @param \ReflectionClass $reflection
+     *            The reflection whence resolve the method
+     * @param string $methodName
+     *            The method name to resolve
      *
      * @throws MethodNotFoundException If the method does not exist
      *
@@ -267,8 +309,10 @@ class ObjectCall
      * This method return a ReflectionMethod from a given
      * reflection class.
      *
-     * @param \ReflectionClass $reflection The reflection whence resolve the method
-     * @param string           $methodName The method name to resolve
+     * @param \ReflectionClass $reflection
+     *            The reflection whence resolve the method
+     * @param string $methodName
+     *            The method name to resolve
      *
      * @throws MethodNotFoundException If the method does not exist
      *
@@ -276,12 +320,8 @@ class ObjectCall
      */
     private function getMethod(\ReflectionClass $reflection, $methodName)
     {
-        if (!$reflection->hasMethod($methodName)) {
-            throw new MethodNotFoundException(
-                sprintf('Method \'%s\' cannot be resolved', $methodName),
-                $reflection->getName(),
-                $methodName
-            );
+        if (! $reflection->hasMethod($methodName)) {
+            throw new MethodNotFoundException(sprintf('Method \'%s\' cannot be resolved', $methodName), $reflection->getName(), $methodName);
         }
 
         return $reflection->getMethod($methodName);

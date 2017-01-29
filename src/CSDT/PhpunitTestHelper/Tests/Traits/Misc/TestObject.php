@@ -297,4 +297,19 @@ class TestObject
     {
         self::$staticPrivate = $staticPrivate;
     }
+
+    /**
+     * Throw exception
+     *
+     * This method throw an exception.
+     *
+     * @param string $message The exception message
+     * @param string $code    The exception code
+     *
+     * @throws \Exception
+     */
+    public function throwException($message, $code)
+    {
+        throw new \Exception($message, $code);
+    }
 }

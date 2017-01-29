@@ -15,11 +15,9 @@
  */
 namespace CSDT\PhpunitTestHelper\Objects;
 
+use CSDT\PhpunitTestHelper\Expressions\InjectExpression;
 use CSDT\PhpunitTestHelper\Objects\ObjectCall;
 use CSDT\PhpunitTestHelper\Traits\ObjectTestTrait;
-use CSDT\PhpunitTestHelper\Exceptions\RequiredArgumentException;
-use CSDT\PhpunitTestHelper\Exceptions\TypeException;
-use CSDT\PhpunitTestHelper\Expressions\InjectExpression;
 
 /**
  * Setter call.

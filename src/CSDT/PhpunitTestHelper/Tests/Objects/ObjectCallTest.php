@@ -282,4 +282,20 @@ class ObjectCallTest extends \PHPUnit_Framework_TestCase
             // success
         }
     }
+
+    /**
+     * Test throwing
+     *
+     * This method validate the must throw feature of the ObjectCall
+     *
+     * @return void
+     */
+    public function testThrowing()
+    {
+        $this->instance->call('throwException')
+            ->onInstance(new TestObject())
+            ->with(array('test', 500))
+            ->mustThrow(\Exception::class, 500, 'test')
+            ->resolve();
+    }
 }

@@ -15,12 +15,11 @@
  */
 namespace CSDT\PhpunitTestHelper\Tests\Expressions;
 
+use CSDT\PhpunitTestHelper\Exceptions\TypeException;
 use CSDT\PhpunitTestHelper\Expressions\InjectExpression;
-use CSDT\PhpunitTestHelper\Traits\ObjectTestTrait;
 use CSDT\PhpunitTestHelper\Objects\SetterCall;
 use CSDT\PhpunitTestHelper\Tests\Traits\Misc\TestObject;
-use CSDT\PhpunitTestHelper\Exceptions\TypeException;
-use CSDT\PhpunitTestHelper\Tests\Traits\Misc\FacadeObject;
+use CSDT\PhpunitTestHelper\Traits\ObjectTestTrait;
 
 /**
  * InjectExpression test
